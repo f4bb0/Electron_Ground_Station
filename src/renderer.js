@@ -22,6 +22,10 @@ document.getElementById('connect').addEventListener('click', () => {
         port: parseInt(document.getElementById('port').value) || 22
     }
     
+    const statusEl = document.getElementById('ssh-status')
+    statusEl.textContent = 'Connecting...'
+    statusEl.style.color = 'orange'
+    
     ipcRenderer.send('ssh-connect', config)
 })
 
@@ -35,8 +39,29 @@ ipcRenderer.on('ssh-data', (event, data) => {
     term.write(data)
 })
 
+ipcRenderer.on('ssh-connected', () => {
+    const statusEl = document.getElementById('ssh-status')
+    statusEl.textContent = 'Connected'
+    statusEl.style.color = 'green'
+})
+
+ipcRenderer.on('ssh-shell-ready', () => {
+    const statusEl = document.getElementById('ssh-status')
+    statusEl.textContent = 'Shell Ready'
+    statusEl.style.color = 'green'
+})
+
 ipcRenderer.on('ssh-error', (event, message) => {
+    const statusEl = document.getElementById('ssh-status')
+    statusEl.textContent = `Error: ${message}`
+    statusEl.style.color = 'red'
     console.error('SSH Error:', message)
+})
+
+ipcRenderer.on('ssh-closed', () => {
+    const statusEl = document.getElementById('ssh-status')
+    statusEl.textContent = 'Disconnected'
+    statusEl.style.color = 'gray'
 })
 
 // UDP处理

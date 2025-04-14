@@ -49,6 +49,13 @@ ipcMain.on('ssh-connect', (event, config) => {
   conn.connect(config)
 })
 
+// 添加SSH数据处理事件
+ipcMain.on('ssh-data', (event, data) => {
+  if (global.sshStream) {
+    global.sshStream.write(data)
+  }
+})
+
 // UDP服务
 const udpServer = dgram.createSocket('udp4')
 udpServer.on('listening', () => {
