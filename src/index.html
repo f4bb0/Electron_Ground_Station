@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ground Station</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../node_modules/xterm/css/xterm.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="connection-panel">
+            <div class="ssh-config">
+                <input type="text" id="host" placeholder="Host">
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+                <input type="number" id="port" placeholder="SSH Port" value="22">
+                <button id="connect">Connect SSH</button>
+            </div>
+            <div class="udp-config">
+                <input type="number" id="udpPort" placeholder="UDP Port" value="14550">
+                <button id="startUDP">Start UDP</button>
+            </div>
+        </div>
+        <div class="main-content">
+            <div id="terminal"></div>
+            <div id="data-stream"></div>
+        </div>
+    </div>
+    <script src="../node_modules/xterm/lib/xterm.js"></script>
+    <script src="../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="renderer.js"></script>
+</body>
+</html>

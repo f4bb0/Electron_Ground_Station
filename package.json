@@ -1,0 +1,24 @@
+{
+  "name": "electron-ground-station",
+  "version": "1.0.0",
+  "description": "Web Ground Station Application",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --inspect",
+    "build": "electron-builder",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^24.6.3",
+    "jest": "^29.5.0"
+  },
+  "dependencies": {
+    "ssh2": "^1.11.0",
+    "xterm": "^5.1.0",
+    "xterm-addon-fit": "^0.7.0"
+  }
+}
