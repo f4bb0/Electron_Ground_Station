@@ -83,3 +83,30 @@ ipcRenderer.on('udp-data', (event, data) => {
 window.addEventListener('resize', () => {
     fitAddon.fit()
 })
+
+// 添加resize功能
+document.querySelectorAll('.resize-handle').forEach(handle => {
+    handle.addEventListener('mousedown', initResize);
+});
+
+function initResize(e) {
+    e.preventDefault();
+    const resizable = e.target.parentElement;
+    const startWidth = resizable.offsetWidth;
+    const startX = e.clientX;
+
+    function resize(e) {
+        const newWidth = startWidth + (e.clientX - startX);
+        resizable.style.width = `${newWidth}px`;
+        resizable.style.flex = 'none';
+        fitAddon.fit();
+    }
+
+    function stopResize() {
+        window.removeEventListener('mousemove', resize);
+        window.removeEventListener('mouseup', stopResize);
+    }
+
+    window.addEventListener('mousemove', resize);
+    window.addEventListener('mouseup', stopResize);
+}
