@@ -32,4 +32,28 @@ document.addEventListener('DOMContentLoaded', () => {
         markers.forEach(marker => map.removeLayer(marker));
         markers.length = 0; // 清空数组
     });
+
+    // 添加导航功能
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.page');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // 移除所有active类
+            navItems.forEach(nav => nav.classList.remove('active'));
+            // 添加当前active类
+            item.classList.add('active');
+            
+            // 隐藏所有页面
+            pages.forEach(page => page.classList.add('hidden'));
+            // 显示目标页面
+            const targetPage = document.getElementById(`${item.dataset.page}-page`);
+            targetPage.classList.remove('hidden');
+
+            // 如果切换到地图页面，触发地图resize事件
+            if (item.dataset.page === 'map') {
+                map.invalidateSize();
+            }
+        });
+    });
 });

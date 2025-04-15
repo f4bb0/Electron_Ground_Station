@@ -8,37 +8,46 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
-    <div class="container">
-        <div class="connection-panel">
-            <div class="ssh-config">
-                <input type="text" id="host" placeholder="Host">
-                <input type="text" id="username" placeholder="Username">
-                <input type="password" id="password" placeholder="Password">
-                <input type="number" id="port" placeholder="SSH Port" value="22">
-                <button id="connect">Connect SSH</button>
-                <span id="ssh-status"></span>
-            </div>
-            <div class="udp-config">
-                <input type="number" id="udpPort" placeholder="UDP Port" value="14550">
-                <button id="startUDP">Start UDP</button>
-            </div>
-        </div>
-        <div class="main-content">
-            <div class="resizable">
-                <div id="terminal"></div>
-                <div class="resize-handle"></div>
-            </div>
-            <div class="resizable">
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="nav-item active" data-page="map">地图</div>
+            <div class="nav-item" data-page="debug">调试</div>
+        </nav>
+        
+        <div class="content">
+            <div class="page" id="map-page">
                 <div id="map-container">
                     <div id="map"></div>
                     <div id="coordinates"></div>
                     <button id="clear-markers">清除所有标记</button>
                 </div>
-                <div class="resize-handle"></div>
             </div>
-            <div class="resizable">
-                <div id="data-stream"></div>
-                <div class="resize-handle"></div>
+
+            <div class="page hidden" id="debug-page">
+                <div class="connection-panel">
+                    <div class="ssh-config">
+                        <input type="text" id="host" placeholder="Host">
+                        <input type="text" id="username" placeholder="Username">
+                        <input type="password" id="password" placeholder="Password">
+                        <input type="number" id="port" placeholder="SSH Port" value="22">
+                        <button id="connect">Connect SSH</button>
+                        <span id="ssh-status"></span>
+                    </div>
+                    <div class="udp-config">
+                        <input type="number" id="udpPort" placeholder="UDP Port" value="14550">
+                        <button id="startUDP">Start UDP</button>
+                    </div>
+                </div>
+                <div class="debug-content">
+                    <div class="resizable">
+                        <div id="terminal"></div>
+                        <div class="resize-handle"></div>
+                    </div>
+                    <div class="resizable">
+                        <div id="data-stream"></div>
+                        <div class="resize-handle"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

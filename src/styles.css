@@ -140,3 +140,54 @@ button:hover {
 #clear-markers:hover {
     background: #bd2130;
 }
+
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+.navbar {
+    width: 200px;
+    background: #2c3e50;
+    padding: 20px 0;
+}
+
+.nav-item {
+    color: white;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.nav-item:hover {
+    background: #34495e;
+}
+
+.nav-item.active {
+    background: #3498db;
+}
+
+.content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.page {
+    height: 100%;
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+#map-page {
+    height: 100%;
+}
+
+.debug-content {
+    display: flex;
+    height: calc(100% - 120px);  /* 减去connection-panel的高度 */
+    gap: 10px;
+    padding: 10px;
+}
