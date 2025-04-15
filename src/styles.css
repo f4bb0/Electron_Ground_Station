@@ -131,8 +131,8 @@ button:hover {
 
 #clear-markers {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    bottom: 50px; /* 修改为距离底部50px */
+    left: 10px;   /* 修改为左对齐 */
     z-index: 1000;
     background: #dc3545;
 }
@@ -190,4 +190,29 @@ button:hover {
     height: calc(100% - 120px);  /* 减去connection-panel的高度 */
     gap: 10px;
     padding: 10px;
+}
+
+.quick-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 4px;
+    z-index: 1001; /* 确保在清除标记按钮之上 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#map-ssh-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(0,0,0,0.1);
+    font-weight: bold;
+}
+
+#quick-host {
+    width: 200px;
 }

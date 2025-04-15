@@ -56,4 +56,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // 快速连接功能
+    document.getElementById('quick-connect').addEventListener('click', () => {
+        const hostInput = document.getElementById('quick-host').value;
+        const [username, host] = hostInput.split('@');
+        
+        // 配置SSH连接
+        const config = {
+            host: host,
+            username: username,
+            password: '',
+            port: 22
+        };
+
+        // 更新状态
+        const statusEl = document.getElementById('map-ssh-status');
+        statusEl.textContent = 'Connecting...';
+        statusEl.style.color = 'orange';
+
+        // 发送SSH连接请求
+        ipcRenderer.send('ssh-connect', config);
+        
+        // 启动UDP
+        ipcRenderer.send('start-udp', 14550);
+    });
+
+    // SSH状态监听
+    ipcRenderer.on('ssh-connected', () => {
+        const statusEl = document.getElementById('map-ssh-status');
+        statusEl.textContent = 'Connected';
+        statusEl.style.color = 'green';
+    });
+
+    ipcRenderer.on('ssh-error', (event, message) => {
+        const statusEl = document.getElementById('map-ssh-status');
+        statusEl.textContent = `Error: ${message}`;
+        statusEl.style.color = 'red';
+    });
+
+    ipcRenderer.on('ssh-closed', () => {
+        const statusEl = document.getElementById('map-ssh-status');
+        statusEl.textContent = 'Disconnected';
+        statusEl.style.color = 'gray';
+    });
 });
