@@ -5,6 +5,7 @@
     <title>Ground Station</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="../node_modules/xterm/css/xterm.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
     <div class="container">
@@ -28,6 +29,14 @@
                 <div class="resize-handle"></div>
             </div>
             <div class="resizable">
+                <div id="map-container">
+                    <div id="map"></div>
+                    <div id="coordinates"></div>
+                    <button id="clear-markers">清除所有标记</button>
+                </div>
+                <div class="resize-handle"></div>
+            </div>
+            <div class="resizable">
                 <div id="data-stream"></div>
                 <div class="resize-handle"></div>
             </div>
@@ -35,6 +44,8 @@
     </div>
     <script src="../node_modules/xterm/lib/xterm.js"></script>
     <script src="../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="map.js"></script>
     <script src="renderer.js"></script>
 </body>
 </html>
