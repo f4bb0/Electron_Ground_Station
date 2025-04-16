@@ -3,10 +3,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map').setView([30.5728, 114.2667], 13);
     const markers = []; // 用于存储所有标记点
 
-    // 添加OpenStreetMap图层
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    // 定义基础图层
+    const baseMaps = {
+        'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }),
+        'Google卫星': L.tileLayer('http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            attribution: '© Google'
+        }),
+        '高德卫星': L.layerGroup([
+            L.tileLayer('https://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
+                subdomains: ['01', '02', '03', '04'],
+                attribution: '© AutoNavi'
+            }),
+            L.tileLayer('https://webst{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8', {
+                subdomains: ['01', '02', '03', '04']
+            })
+        ]),
+        '地形图': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenTopoMap'
+        })
+    };
+
+    // 添加默认图层
+    baseMaps['OpenStreetMap'].addTo(map);
+
+    // 添加快速切换控件
+    const MapSwitcher = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd: function() {
+            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            const buttons = [
+                { name: 'OpenStreetMap', icon: '🗺️' },
+                { name: 'Google卫星', icon: '🛰️' },
+                { name: '高德卫星', icon: '📡' },
+                { name: '地形图', icon: '⛰️' }
+            ];
+            
+            buttons.forEach(btn => {
+                const button = L.DomUtil.create('a', '', container);
+                button.innerHTML = btn.icon;
+                button.href = '#';
+                button.title = btn.name;
+                button.style.fontSize = '16px';
+                button.style.textAlign = 'center';
+                button.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation(); // 阻止事件冒泡
+                    Object.values(baseMaps).forEach(layer => map.removeLayer(layer));
+                    baseMaps[btn.name].addTo(map);
+                };
+            });
+            
+            // 防止地图缩放
+            L.DomEvent.disableClickPropagation(container);
+            L.DomEvent.disableScrollPropagation(container);
+            
+            return container;
+        }
+    });
+    
+    new MapSwitcher().addTo(map);
 
     // 添加坐标显示
     const coordinatesDiv = document.getElementById('coordinates');
