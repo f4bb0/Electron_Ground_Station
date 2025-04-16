@@ -3,6 +3,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map').setView([30.5728, 114.2667], 13);
     const markers = []; // 用于存储所有标记点
 
+    // 添加坐标转换工具
+    const coordTransform = {
+        PI: 3.14159265358979324,
+        x_pi: 3.14159265358979324 * 3000.0 / 180.0,
+        
+        // WGS84 转 GCJ02
+        wgs84togcj02: function(lng, lat) {
+            if (this.out_of_china(lng, lat)) {
+                return [lng, lat];
+            }
+            let dlat = this.transformlat(lng - 105.0, lat - 35.0);
+            let dlng = this.transformlng(lng - 105.0, lat - 35.0);
+            const radlat = lat / 180.0 * this.PI;
+            let magic = Math.sin(radlat);
+            magic = 1 - 0.00669342162296594323 * magic * magic;
+            const sqrtmagic = Math.sqrt(magic);
+            dlat = (dlat * 180.0) / ((6378245.0 * (1 - 0.006693421622966)) / (magic * sqrtmagic) * this.PI);
+            dlng = (dlng * 180.0) / (6378245.0 / sqrtmagic * Math.cos(radlat) * this.PI);
+            return [lng + dlng, lat + dlat];
+        },
+        
+        transformlat: function(lng, lat) {
+            let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(lat * this.PI) + 40.0 * Math.sin(lat / 3.0 * this.PI)) * 2.0 / 3.0;
+            ret += (160.0 * Math.sin(lat / 12.0 * this.PI) + 320 * Math.sin(lat * this.PI / 30.0)) * 2.0 / 3.0;
+            return ret;
+        },
+        
+        transformlng: function(lng, lat) {
+            let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+            ret += (20.0 * Math.sin(6.0 * lng * this.PI) + 20.0 * Math.sin(2.0 * lng * this.PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(lng * this.PI) + 40.0 * Math.sin(lng / 3.0 * this.PI)) * 2.0 / 3.0;
+            ret += (150.0 * Math.sin(lng / 12.0 * this.PI) + 300.0 * Math.sin(lng / 30.0 * this.PI)) * 2.0 / 3.0;
+            return ret;
+        },
+        
+        out_of_china: function(lng, lat) {
+            return (lng < 72.004 || lng > 137.8347) || (lat < 0.8293 || lat > 55.8271);
+        }
+    };
+
     // 定义基础图层
     const baseMaps = {
         'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -14,10 +56,42 @@ document.addEventListener('DOMContentLoaded', () => {
         '高德卫星': L.layerGroup([
             L.tileLayer('https://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
                 subdomains: ['01', '02', '03', '04'],
-                attribution: '© AutoNavi'
+                attribution: '© AutoNavi',
+                tileSize: 256,
+                zoomOffset: 0,
+                tms: false,
+                // 添加坐标转换
+                getTileUrl: function(coords) {
+                    const tileBounds = this._tileCoordsToBounds(coords);
+                    const nw = tileBounds.getNorthWest();
+                    const [lng, lat] = coordTransform.wgs84togcj02(nw.lng, nw.lat);
+                    const converted = L.latLng(lat, lng);
+                    const convertedPoint = this._map.project(converted, coords.z);
+                    const convertedCoords = convertedPoint.divideBy(256).floor();
+                    return L.Util.template(this._url, {
+                        s: this._getSubdomain(coords),
+                        x: convertedCoords.x,
+                        y: convertedCoords.y,
+                        z: coords.z
+                    });
+                }
             }),
             L.tileLayer('https://webst{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8', {
-                subdomains: ['01', '02', '03', '04']
+                subdomains: ['01', '02', '03', '04'],
+                getTileUrl: function(coords) {
+                    const tileBounds = this._tileCoordsToBounds(coords);
+                    const nw = tileBounds.getNorthWest();
+                    const [lng, lat] = coordTransform.wgs84togcj02(nw.lng, nw.lat);
+                    const converted = L.latLng(lat, lng);
+                    const convertedPoint = this._map.project(converted, coords.z);
+                    const convertedCoords = convertedPoint.divideBy(256).floor();
+                    return L.Util.template(this._url, {
+                        s: this._getSubdomain(coords),
+                        x: convertedCoords.x,
+                        y: convertedCoords.y,
+                        z: coords.z
+                    });
+                }
             })
         ]),
         '地形图': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
