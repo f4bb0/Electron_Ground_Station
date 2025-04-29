@@ -10,11 +10,46 @@
 <body>
     <div class="app-container">
         <nav class="navbar">
-            <div class="nav-item active" data-page="map">地图</div>
+            <div class="nav-item active" data-page="main">主要</div>
+            <div class="nav-item" data-page="map">地图</div>
             <div class="nav-item" data-page="debug">调试</div>
         </nav>
         
         <div class="content">
+            <div class="page" id="main-page">
+                <div class="video-container">
+                    <!-- 图传视频区域 -->
+                    <div id="video-stream"></div>
+                    
+                    <!-- 可收放的仪表界面 -->
+                    <div class="dashboard-container">
+                        <div class="dashboard-toggle">
+                            <button id="toggle-dashboard">▼</button>
+                        </div>
+                        <div class="dashboard-content">
+                            <div id="dashboard-panels">
+                                <div class="instrument-container">
+                                    <div class="heading-indicator">
+                                        <div class="instrument-label">Heading Indicator</div>
+                                        <canvas id="heading-canvas"></canvas>
+                                        <div class="instrument-value">Heading: <span id="heading-value">0°</span></div>
+                                    </div>
+                                    <div class="attitude-indicator">
+                                        <div class="instrument-label">Attitude Indicator</div>
+                                        <canvas id="attitude-canvas"></canvas>
+                                        <div class="instrument-values">
+                                            <div>Pitch: <span id="pitch-value">0°</span></div>
+                                            <div>Roll: <span id="roll-value">0°</span></div>
+                                            <div>Yaw: <span id="yaw-value">0°</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="page" id="map-page">
                 <div id="map-container">
                     <div id="map"></div>

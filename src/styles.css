@@ -1,3 +1,11 @@
+:root {
+    /* 姿态指示器颜色配置 */
+    --attitude-sky-color: #2066a7;
+    --attitude-ground-color: #724818;
+    --attitude-reticle-color: #f1ed00;
+    --attitude-line-color: #fff;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -215,4 +223,106 @@ button:hover {
 
 #quick-host {
     width: 200px;
+}
+
+/* 主页面样式 */
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+}
+
+#video-stream {
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/test-pattern.jpg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: black;
+}
+
+/* 仪表盘样式 */
+.dashboard-container {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 1200px;
+}
+
+.dashboard-toggle {
+    text-align: center;
+    padding: 5px;
+}
+
+#toggle-dashboard {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px 20px;
+    font-size: 16px;
+}
+
+#toggle-dashboard:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#toggle-dashboard.collapsed {
+    transform: rotate(180deg);
+}
+
+.dashboard-content {
+    padding: 0;
+    color: white;
+    height: 170px;
+}
+
+.dashboard-content.collapsed {
+    display: none;
+}
+
+#dashboard-panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+.instrument-container {
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 0;
+}
+
+/* 姿态指示器样式 */
+.heading-indicator, .attitude-indicator {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.instrument-label {
+    display: none;
+}
+
+#heading-canvas, #attitude-canvas {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #111;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
