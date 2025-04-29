@@ -326,3 +326,31 @@ button:hover {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+/* HUD样式 */
+.hud-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: monospace;
+    z-index: 100;
+}
+
+.hud-heading {
+    font-size: 24px;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hud-value {
+    min-width: 60px;
+    text-align: center;
+}

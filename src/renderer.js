@@ -368,6 +368,10 @@ function updateHeading(delta) {
     currentHeading = (currentHeading + delta + 360) % 360;
     const ctx = document.getElementById('heading-canvas').getContext('2d');
     drawHeadingIndicator(ctx, currentHeading);
+    
+    // Update HUD heading
+    const hudHeading = document.getElementById('hud-heading');
+    hudHeading.textContent = currentHeading.toString().padStart(3, '0');
 }
 
 function updateAttitude(pitchDelta, rollDelta, yawDelta) {
