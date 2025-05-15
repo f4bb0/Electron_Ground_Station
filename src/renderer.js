@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron')
+const Peer = require('simple-peer')
 
 // 初始化终端
 const term = new Terminal({
@@ -382,3 +383,120 @@ function updateAttitude(pitchDelta, rollDelta, yawDelta) {
     const ctx = document.getElementById('attitude-canvas').getContext('2d');
     drawAttitudeIndicator(ctx, currentPitch, currentRoll, currentYaw);
 }
+
+// WebRTC相关变量
+let peer = null
+let videoStream = null
+
+// 初始化视频容器
+const videoContainer = document.getElementById('video-stream')
+const videoElement = document.createElement('video')
+videoElement.autoplay = true
+videoElement.muted = true // 避免回声
+videoContainer.appendChild(videoElement)
+
+// WebRTC连接处理
+document.getElementById('webrtc-connect').addEventListener('click', () => {
+    const config = {
+        signalingUrl: document.getElementById('webrtc-signaling-url').value,
+        streamId: document.getElementById('webrtc-stream-id').value
+    }
+    
+    const statusEl = document.getElementById('webrtc-status')
+    statusEl.textContent = 'Connecting...'
+    statusEl.style.color = 'orange'
+
+    // 配置ICE服务器
+    const iceServers = [{
+        urls: document.getElementById('webrtc-stun').value
+    }]
+
+    const turnServer = document.getElementById('webrtc-turn').value
+    if (turnServer) {
+        iceServers.push({
+            urls: turnServer,
+            username: document.getElementById('webrtc-turn-username').value,
+            credential: document.getElementById('webrtc-turn-credential').value
+        })
+    }
+
+    // 创建新的Peer连接
+    if (peer) {
+        peer.destroy()
+    }
+
+    peer = new Peer({
+        initiator: false,
+        trickle: true,
+        config: {
+            iceServers: iceServers
+        }
+    })
+
+    // 处理连接事件
+    peer.on('signal', data => {
+        ipcRenderer.send('webrtc-signal', {
+            type: 'signal',
+            streamId: config.streamId,
+            data: data
+        })
+    })
+
+    peer.on('stream', stream => {
+        videoStream = stream
+        videoElement.srcObject = stream
+    })
+
+    peer.on('error', err => {
+        console.error('Peer Error:', err)
+        statusEl.textContent = 'Error: ' + err.message
+        statusEl.style.color = 'red'
+    })
+
+    peer.on('connect', () => {
+        statusEl.textContent = 'Connected'
+        statusEl.style.color = 'green'
+    })
+
+    peer.on('close', () => {
+        statusEl.textContent = 'Disconnected'
+        statusEl.style.color = 'gray'
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop())
+            videoStream = null
+        }
+        videoElement.srcObject = null
+    })
+
+    // 连接到信令服务器
+    ipcRenderer.send('webrtc-connect', config)
+})
+
+// 处理信令服务器事件
+ipcRenderer.on('webrtc-signaling-connected', () => {
+    const statusEl = document.getElementById('webrtc-status')
+    statusEl.textContent = 'Signaling Connected'
+    statusEl.style.color = 'blue'
+})
+
+ipcRenderer.on('webrtc-signal', (event, message) => {
+    if (message.type === 'signal' && peer) {
+        peer.signal(message.data)
+    }
+})
+
+ipcRenderer.on('webrtc-error', (event, error) => {
+    const statusEl = document.getElementById('webrtc-status')
+    statusEl.textContent = 'Error: ' + error
+    statusEl.style.color = 'red'
+})
+
+ipcRenderer.on('webrtc-signaling-closed', () => {
+    const statusEl = document.getElementById('webrtc-status')
+    statusEl.textContent = 'Signaling Closed'
+    statusEl.style.color = 'gray'
+    if (peer) {
+        peer.destroy()
+        peer = null
+    }
+})

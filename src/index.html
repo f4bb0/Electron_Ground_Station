@@ -70,16 +70,37 @@
             <div class="page hidden" id="debug-page">
                 <div class="connection-panel">
                     <div class="ssh-config">
-                        <input type="text" id="host" placeholder="Host">
-                        <input type="text" id="username" placeholder="Username">
-                        <input type="password" id="password" placeholder="Password">
-                        <input type="number" id="port" placeholder="SSH Port" value="22">
-                        <button id="connect">Connect SSH</button>
-                        <span id="ssh-status"></span>
+                        <h3>SSH Configuration</h3>
+                        <div class="input-group">
+                            <input type="text" id="host" placeholder="Host">
+                            <input type="text" id="username" placeholder="Username">
+                            <input type="password" id="password" placeholder="Password">
+                            <input type="number" id="port" placeholder="SSH Port" value="22">
+                            <button id="connect">Connect SSH</button>
+                            <span id="ssh-status"></span>
+                        </div>
                     </div>
                     <div class="udp-config">
-                        <input type="number" id="udpPort" placeholder="UDP Port" value="14550">
-                        <button id="startUDP">Start UDP</button>
+                        <h3>UDP Configuration</h3>
+                        <div class="input-group">
+                            <input type="number" id="udpPort" placeholder="UDP Port" value="14550">
+                            <button id="startUDP">Start UDP</button>
+                        </div>
+                    </div>
+                    <div class="webrtc-config">
+                        <h3>WebRTC Configuration</h3>
+                        <div class="input-group">
+                            <input type="text" id="webrtc-signaling-url" placeholder="Signaling Server URL" value="ws://localhost:8080">
+                            <input type="text" id="webrtc-stream-id" placeholder="Stream ID">
+                            <button id="webrtc-connect">Connect WebRTC</button>
+                            <span id="webrtc-status"></span>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="webrtc-stun" placeholder="STUN Server" value="stun:stun.l.google.com:19302">
+                            <input type="text" id="webrtc-turn" placeholder="TURN Server (optional)">
+                            <input type="text" id="webrtc-turn-username" placeholder="TURN Username">
+                            <input type="password" id="webrtc-turn-credential" placeholder="TURN Credential">
+                        </div>
                     </div>
                 </div>
                 <div class="debug-content">

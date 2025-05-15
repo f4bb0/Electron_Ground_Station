@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const { Client } = require('ssh2')
 const dgram = require('dgram')
+const WebSocket = require('ws')
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -71,6 +72,49 @@ udpServer.on('message', (msg, rinfo) => {
 
 ipcMain.on('start-udp', (event, port) => {
   udpServer.bind(port)
+})
+
+// WebRTC信令服务器连接处理
+let signalingConnection = null
+
+ipcMain.on('webrtc-connect', (event, config) => {
+  if (signalingConnection) {
+    signalingConnection.close()
+  }
+
+  signalingConnection = new WebSocket(config.signalingUrl)
+
+  signalingConnection.on('open', () => {
+    event.reply('webrtc-signaling-connected')
+    // 发送stream ID到信令服务器
+    signalingConnection.send(JSON.stringify({
+      type: 'register',
+      streamId: config.streamId
+    }))
+  })
+
+  signalingConnection.on('message', (data) => {
+    try {
+      const message = JSON.parse(data)
+      event.reply('webrtc-signal', message)
+    } catch (e) {
+      console.error('Failed to parse signaling message:', e)
+    }
+  })
+
+  signalingConnection.on('close', () => {
+    event.reply('webrtc-signaling-closed')
+  })
+
+  signalingConnection.on('error', (error) => {
+    event.reply('webrtc-error', error.message)
+  })
+})
+
+ipcMain.on('webrtc-signal', (event, signal) => {
+  if (signalingConnection && signalingConnection.readyState === WebSocket.OPEN) {
+    signalingConnection.send(JSON.stringify(signal))
+  }
 })
 
 app.whenReady().then(() => {
