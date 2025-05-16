@@ -7,6 +7,10 @@
     "start": "electron .",
     "dev": "electron . --inspect",
     "build": "electron-builder",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
     "test": "jest"
   },
   "author": "",
@@ -23,5 +27,37 @@
     "ws": "^8.18.2",
     "xterm": "^5.1.0",
     "xterm-addon-fit": "^0.7.0"
+  },
+  "build": {
+    "appId": "com.groundstation.electron",
+    "productName": "Electron Ground Station",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "category": "Utility"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
   }
 }
