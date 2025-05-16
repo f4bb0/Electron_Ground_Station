@@ -13,7 +13,10 @@
     "dist:linux": "electron-builder --linux",
     "test": "jest"
   },
-  "author": "",
+  "author": {
+    "name": "Ground Station Team",
+    "email": "team@groundstation.local"
+  },
   "license": "ISC",
   "devDependencies": {
     "electron": "^25.0.0",
@@ -30,7 +33,7 @@
   },
   "build": {
     "appId": "com.groundstation.electron",
-    "productName": "Electron Ground Station",
+    "productName": "electron-ground-station",
     "directories": {
       "output": "dist"
     },
@@ -42,22 +45,25 @@
     "linux": {
       "target": [
         "AppImage",
-        "deb",
-        "rpm"
+        "deb"
       ],
-      "category": "Utility"
-    },
-    "mac": {
-      "target": [
-        "dmg"
-      ],
-      "category": "public.app-category.utilities"
+      "category": "Utility",
+      "maintainer": "Ground Station Team <team@groundstation.local>",
+      "artifactName": "${name}-${version}.${ext}"
     },
     "win": {
       "target": [
-        "nsis",
-        "portable"
-      ]
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "src/assets/favicon.png",
+      "artifactName": "${name}-${version}-setup.${ext}"
     }
   }
 }

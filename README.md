@@ -45,8 +45,37 @@ A cross-platform ground control station built with Electron, designed for remote
 
 ## Requirements
 
+### Runtime Requirements
 - Node.js (v14.0.0 or higher)
 - npm (v6.0.0 or higher)
+
+### Build Requirements
+#### Linux
+- `base-devel` - Required for building packages
+- `libxcrypt-compat` - Required for .deb packaging
+- `libgcrypt` - Required for cryptographic operations
+- `ruby` and `ruby-bundler` - Required for FPM packaging tool
+
+Install on Manjaro/Arch:
+```bash
+sudo pacman -S base-devel libxcrypt-compat libgcrypt ruby ruby-bundler
+```
+
+Install on Ubuntu/Debian:
+```bash
+sudo apt install build-essential ruby ruby-dev
+```
+
+#### Windows
+- Wine (for building Windows packages on Linux)
+
+For Arch Linux users, install Wine:
+```bash
+sudo pacman -S wine wine-mono wine-gecko
+```
+
+For other Linux distributions, please refer to [WineHQ Installation Guide](https://wiki.winehq.org/Download)
+
 
 ## Installation
 
@@ -97,16 +126,11 @@ The distribution packages will be created in the `dist` directory.
 - NSIS Installer (.exe)
 - Portable version (.exe)
 
-#### macOS
-- DMG disk image (.dmg)
-
 #### Linux
-- AppImage (.AppImage)
-- Debian package (.deb)
-- RPM package (.rpm)
+- AppImage (.AppImage) - Universal Linux package
+- Debian package (.deb) - For Debian-based distributions
 
 ### Notes
-- Building for macOS requires a macOS system
 - Building for Windows on non-Windows platforms requires Wine
 - All build outputs will be placed in the `dist` directory
 
