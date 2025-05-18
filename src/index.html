@@ -87,6 +87,17 @@
                             <button id="startUDP">Start UDP</button>
                         </div>
                     </div>
+                    <div class="mqtt-config">
+                        <h3>MQTT Configuration</h3>
+                        <div class="input-group">
+                            <input type="text" id="mqtt-broker" placeholder="Broker URL" value="mqtt://localhost:1883">
+                            <input type="text" id="mqtt-topic" placeholder="Topic" value="vehicle/status">
+                            <input type="text" id="mqtt-username" placeholder="Username (optional)">
+                            <input type="password" id="mqtt-password" placeholder="Password (optional)">
+                            <button id="mqtt-connect">Connect MQTT</button>
+                            <span id="mqtt-status"></span>
+                        </div>
+                    </div>
                     <div class="webrtc-config">
                         <h3>WebRTC Configuration</h3>
                         <div class="input-group">
@@ -109,7 +120,21 @@
                         <div class="resize-handle"></div>
                     </div>
                     <div class="resizable">
-                        <div id="data-stream"></div>
+                        <div class="log-container">
+                            <div class="log-controls">
+                                <div class="log-filters">
+                                    <label><input type="checkbox" data-type="ssh" checked> SSH</label>
+                                    <label><input type="checkbox" data-type="udp" checked> UDP</label>
+                                    <label><input type="checkbox" data-type="mqtt" checked> MQTT</label>
+                                    <label><input type="checkbox" data-type="webrtc" checked> WebRTC</label>
+                                </div>
+                                <div class="log-actions">
+                                    <button id="clear-logs">清除日志</button>
+                                    <button id="export-logs">导出日志</button>
+                                </div>
+                            </div>
+                            <div id="log-stream"></div>
+                        </div>
                         <div class="resize-handle"></div>
                     </div>
                 </div>

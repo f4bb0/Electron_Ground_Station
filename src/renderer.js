@@ -1,5 +1,6 @@
 const { ipcRenderer } = require('electron')
 const Peer = require('simple-peer')
+const mqtt = require('mqtt')
 
 // 初始化终端
 const term = new Terminal({
@@ -38,12 +39,14 @@ term.onData(data => {
 // SSH事件监听
 ipcRenderer.on('ssh-data', (event, data) => {
     term.write(data)
+    logManager.addLog('ssh', `[SSH] ${data}`)
 })
 
 ipcRenderer.on('ssh-connected', () => {
     const statusEl = document.getElementById('ssh-status')
     statusEl.textContent = 'Connected'
     statusEl.style.color = 'green'
+    logManager.addLog('ssh', '[SSH] Connected')
 })
 
 ipcRenderer.on('ssh-shell-ready', () => {
@@ -56,13 +59,14 @@ ipcRenderer.on('ssh-error', (event, message) => {
     const statusEl = document.getElementById('ssh-status')
     statusEl.textContent = `Error: ${message}`
     statusEl.style.color = 'red'
-    console.error('SSH Error:', message)
+    logManager.addLog('ssh', `[SSH] Error: ${message}`)
 })
 
 ipcRenderer.on('ssh-closed', () => {
     const statusEl = document.getElementById('ssh-status')
     statusEl.textContent = 'Disconnected'
     statusEl.style.color = 'gray'
+    logManager.addLog('ssh', '[SSH] Disconnected')
 })
 
 // UDP处理
@@ -78,6 +82,8 @@ ipcRenderer.on('udp-data', (event, data) => {
     div.textContent = `${new Date().toISOString()}: ${data}`
     dataStream.appendChild(div)
     dataStream.scrollTop = dataStream.scrollHeight
+
+    logManager.addLog('udp', `[UDP] ${data}`)
 })
 
 // 窗口大小改变时调整终端大小
@@ -440,25 +446,31 @@ document.getElementById('webrtc-connect').addEventListener('click', () => {
             streamId: config.streamId,
             data: data
         })
+
+        logManager.addLog('webrtc', `[WebRTC] Signal: ${JSON.stringify(data)}`)
     })
 
     peer.on('stream', stream => {
         videoStream = stream
         videoElement.srcObject = stream
+
+        logManager.addLog('webrtc', '[WebRTC] Stream received')
     })
 
     peer.on('error', err => {
-        console.error('Peer Error:', err)
-        statusEl.textContent = 'Error: ' + err.message
-        statusEl.style.color = 'red'
+        logManager.addLog('webrtc', `[WebRTC] Error: ${err.message}`)
     })
 
     peer.on('connect', () => {
         statusEl.textContent = 'Connected'
         statusEl.style.color = 'green'
+
+        logManager.addLog('webrtc', '[WebRTC] Connected')
     })
 
     peer.on('close', () => {
+        logManager.addLog('webrtc', '[WebRTC] Connection closed')
+
         statusEl.textContent = 'Disconnected'
         statusEl.style.color = 'gray'
         if (videoStream) {
@@ -499,4 +511,179 @@ ipcRenderer.on('webrtc-signaling-closed', () => {
         peer.destroy()
         peer = null
     }
+})
+
+// MQTT变量
+let mqttClient = null
+
+// MQTT消息模板验证和解析
+function parseMqttMessage(message) {
+    try {
+        const data = JSON.parse(message)
+        // 期望的数据格式:
+        // {
+        //     location: { lat: number, lon: number, alt: number },
+        //     attitude: { pitch: number, roll: number, yaw: number },
+        //     velocity: { vx: number, vy: number, vz: number },
+        //     heading: number
+        // }
+        
+        if (!data.location || !data.attitude || !data.velocity || typeof data.heading !== 'number') {
+            throw new Error('Invalid message format')
+        }
+        
+        return data
+    } catch (error) {
+        console.error('MQTT message parse error:', error)
+        return null
+    }
+}
+
+// MQTT连接处理
+document.getElementById('mqtt-connect').addEventListener('click', () => {
+    const brokerUrl = document.getElementById('mqtt-broker').value
+    const topic = document.getElementById('mqtt-topic').value
+    const username = document.getElementById('mqtt-username').value
+    const password = document.getElementById('mqtt-password').value
+    
+    const statusEl = document.getElementById('mqtt-status')
+    statusEl.textContent = 'Connecting...'
+    statusEl.style.color = 'orange'
+    
+    // 如果已经有连接，先断开
+    if (mqttClient) {
+        mqttClient.end()
+        mqttClient = null
+    }
+    
+    // 创建MQTT客户端
+    const options = {
+        clean: true,
+        connectTimeout: 4000,
+        clientId: 'electron_ground_station_' + Math.random().toString(16).substr(2, 8)
+    }
+    
+    if (username) {
+        options.username = username
+    }
+    if (password) {
+        options.password = password
+    }
+    
+    mqttClient = mqtt.connect(brokerUrl, options)
+    
+    mqttClient.on('connect', () => {
+        statusEl.textContent = 'Connected'
+        statusEl.style.color = 'green'
+        
+        // 订阅主题
+        mqttClient.subscribe(topic, (err) => {
+            if (err) {
+                console.error('MQTT subscription error:', err)
+                statusEl.textContent = 'Subscribe Error'
+                statusEl.style.color = 'red'
+            }
+        })
+
+        logManager.addLog('mqtt', '[MQTT] Connected')
+    })
+    
+    mqttClient.on('message', (topic, message) => {
+        const data = parseMqttMessage(message.toString())
+        if (data) {
+            logManager.addLog('mqtt', `[MQTT] ${topic}: ${JSON.stringify(data)}`)
+        }
+    })
+    
+    mqttClient.on('error', (error) => {
+        console.error('MQTT Error:', error)
+        statusEl.textContent = 'Error: ' + error.message
+        statusEl.style.color = 'red'
+
+        logManager.addLog('mqtt', `[MQTT] Error: ${error.message}`)
+    })
+    
+    mqttClient.on('close', () => {
+        statusEl.textContent = 'Disconnected'
+        statusEl.style.color = 'gray'
+
+        logManager.addLog('mqtt', '[MQTT] Disconnected')
+    })
+})
+
+// 日志管理器
+const logManager = {
+    maxLogs: 1000, // 最大日志条数
+    logStream: document.getElementById('log-stream'),
+    activeFilters: new Set(['ssh', 'udp', 'mqtt', 'webrtc']),
+
+    addLog(type, message, timestamp = new Date()) {
+        const entry = document.createElement('div')
+        entry.className = `log-entry ${type}`
+        
+        const timeStr = timestamp.toISOString()
+        entry.innerHTML = `<span class="timestamp">${timeStr}</span>${message}`
+        
+        if (!this.activeFilters.has(type)) {
+            entry.classList.add('hidden')
+        }
+        
+        this.logStream.appendChild(entry)
+        
+        // 限制日志数量
+        while (this.logStream.children.length > this.maxLogs) {
+            this.logStream.removeChild(this.logStream.firstChild)
+        }
+        
+        // 自动滚动到底部
+        this.logStream.scrollTop = this.logStream.scrollHeight
+    },
+
+    clear() {
+        this.logStream.innerHTML = ''
+    },
+
+    export() {
+        const logs = Array.from(this.logStream.children).map(entry => {
+            const timestamp = entry.querySelector('.timestamp').textContent
+            const message = entry.textContent.substring(timestamp.length)
+            const type = Array.from(entry.classList)
+                .find(cls => ['ssh', 'udp', 'mqtt', 'webrtc'].includes(cls))
+            return { timestamp, type, message }
+        })
+
+        const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `logs-${new Date().toISOString()}.json`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+    },
+
+    toggleFilter(type) {
+        if (this.activeFilters.has(type)) {
+            this.activeFilters.delete(type)
+            this.logStream.querySelectorAll(`.log-entry.${type}`).forEach(entry => {
+                entry.classList.add('hidden')
+            })
+        } else {
+            this.activeFilters.add(type)
+            this.logStream.querySelectorAll(`.log-entry.${type}`).forEach(entry => {
+                entry.classList.remove('hidden')
+            })
+        }
+    }
+}
+
+// 初始化日志控制
+document.getElementById('clear-logs').addEventListener('click', () => logManager.clear())
+document.getElementById('export-logs').addEventListener('click', () => logManager.export())
+
+document.querySelectorAll('.log-filters input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+        logManager.toggleFilter(e.target.dataset.type)
+    })
 })
