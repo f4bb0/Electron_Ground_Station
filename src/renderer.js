@@ -570,6 +570,19 @@ document.getElementById('mqtt-connect').addEventListener('click', () => {
         options.password = password
     }
     
+    // 处理不同的协议
+    if (brokerUrl.startsWith('mqtts://')) {
+        // MQTTS协议需要设置安全连接选项
+        options.protocol = 'mqtts'
+        options.rejectUnauthorized = false // 生产环境中应该设置为true并提供正确的CA证书
+    } else if (brokerUrl.startsWith('mqtt://')) {
+        options.protocol = 'mqtt'
+    } else {
+        // 如果用户没有指定协议，默认使用mqtt://
+        console.log('没有指定MQTT协议，默认使用mqtt://')
+        options.protocol = 'mqtt'
+    }
+    
     mqttClient = mqtt.connect(brokerUrl, options)
     
     mqttClient.on('connect', () => {
@@ -582,10 +595,19 @@ document.getElementById('mqtt-connect').addEventListener('click', () => {
                 console.error('MQTT subscription error:', err)
                 statusEl.textContent = 'Subscribe Error'
                 statusEl.style.color = 'red'
+                logManager.addLog('mqtt', `[MQTT] 订阅错误: ${err.message}`)
+            } else {
+                logManager.addLog('mqtt', `[MQTT] 已订阅主题: ${topic}`)
             }
         })
 
         logManager.addLog('mqtt', '[MQTT] Connected')
+    })
+    
+    mqttClient.on('close', () => {
+        statusEl.textContent = 'Disconnected'
+        statusEl.style.color = 'gray'
+        logManager.addLog('mqtt', '[MQTT] Disconnected')
     })
     
     mqttClient.on('message', (topic, message) => {
@@ -599,16 +621,37 @@ document.getElementById('mqtt-connect').addEventListener('click', () => {
         console.error('MQTT Error:', error)
         statusEl.textContent = 'Error: ' + error.message
         statusEl.style.color = 'red'
-
         logManager.addLog('mqtt', `[MQTT] Error: ${error.message}`)
     })
     
-    mqttClient.on('close', () => {
-        statusEl.textContent = 'Disconnected'
-        statusEl.style.color = 'gray'
-
-        logManager.addLog('mqtt', '[MQTT] Disconnected')
-    })
+    // 添加超时处理
+    let connectTimeoutId = setTimeout(() => {
+        if (mqttClient && mqttClient.connected === false) {
+            statusEl.textContent = 'Connection Timeout'
+            statusEl.style.color = 'red'
+            logManager.addLog('mqtt', '[MQTT] Connection Timeout')
+            
+            // 尝试断开连接
+            try {
+                mqttClient.end()
+            } catch (e) {
+                console.error('Error disconnecting MQTT client:', e)
+            }
+            mqttClient = null
+        }
+    }, options.connectTimeout + 1000)
+    
+    // 清除超时的一次性函数
+    const clearConnectTimeout = () => {
+        if (connectTimeoutId) {
+            clearTimeout(connectTimeoutId)
+            connectTimeoutId = null
+        }
+    }
+    
+    // 连接成功或失败后清除超时定时器
+    mqttClient.once('connect', clearConnectTimeout)
+    mqttClient.once('error', clearConnectTimeout)
 })
 
 // 日志管理器
