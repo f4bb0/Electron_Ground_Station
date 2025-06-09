@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const { Client } = require('ssh2')
 const dgram = require('dgram')
-const WebSocket = require('ws')
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -74,48 +73,37 @@ ipcMain.on('start-udp', (event, port) => {
   udpServer.bind(port)
 })
 
-// WebRTC信令服务器连接处理
-let signalingConnection = null
+// GStreamer 处理
+ipcMain.on('gstreamer-launch', (event, pipeline) => {
+  const { spawn } = require('child_process');
+  const gstreamer = spawn('gst-launch-1.0', pipeline.split(' '));
 
-ipcMain.on('webrtc-connect', (event, config) => {
-  if (signalingConnection) {
-    signalingConnection.close()
+  gstreamer.stdout.on('data', (data) => {
+    // Handle GStreamer stdout if needed
+    console.log(`GStreamer stdout: ${data}`);
+  });
+
+  gstreamer.stderr.on('data', (data) => {
+    console.error(`GStreamer stderr: ${data}`);
+    event.reply('gstreamer-error', data.toString());
+  });
+
+  gstreamer.on('close', (code) => {
+    console.log(`GStreamer process exited with code ${code}`);
+    event.reply('gstreamer-closed', code);
+  });
+
+  // Store gstreamer process to allow for stopping it
+  global.gstreamerProcess = gstreamer;
+});
+
+ipcMain.on('gstreamer-stop', (event) => {
+  if (global.gstreamerProcess) {
+    global.gstreamerProcess.kill();
+    global.gstreamerProcess = null;
+    event.reply('gstreamer-stopped');
   }
-
-  signalingConnection = new WebSocket(config.signalingUrl)
-
-  signalingConnection.on('open', () => {
-    event.reply('webrtc-signaling-connected')
-    // 发送stream ID到信令服务器
-    signalingConnection.send(JSON.stringify({
-      type: 'register',
-      streamId: config.streamId
-    }))
-  })
-
-  signalingConnection.on('message', (data) => {
-    try {
-      const message = JSON.parse(data)
-      event.reply('webrtc-signal', message)
-    } catch (e) {
-      console.error('Failed to parse signaling message:', e)
-    }
-  })
-
-  signalingConnection.on('close', () => {
-    event.reply('webrtc-signaling-closed')
-  })
-
-  signalingConnection.on('error', (error) => {
-    event.reply('webrtc-error', error.message)
-  })
-})
-
-ipcMain.on('webrtc-signal', (event, signal) => {
-  if (signalingConnection && signalingConnection.readyState === WebSocket.OPEN) {
-    signalingConnection.send(JSON.stringify(signal))
-  }
-})
+});
 
 app.whenReady().then(() => {
   createWindow()

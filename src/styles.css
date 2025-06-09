@@ -34,7 +34,7 @@ h1 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.ssh-config, .udp-config, .webrtc-config, .mqtt-config {
+.ssh-config, .udp-config, .mqtt-config {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
@@ -42,7 +42,7 @@ h1 {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.ssh-config h3, .udp-config h3, .webrtc-config h3, .mqtt-config h3 {
+.ssh-config h3, .udp-config h3, .mqtt-config h3 {
     margin: 0 0 15px 0;
     color: #2c3e50;
     font-size: 16px;
@@ -427,18 +427,6 @@ button:active {
     text-align: center;
 }
 
-.webrtc-config {
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-.webrtc-config h3 {
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
 .mqtt-config {
     padding: 15px;
     background: #f8f9fa;
@@ -617,10 +605,6 @@ button:active {
 
 .log-entry.mqtt {
     color: #c678dd;
-}
-
-.log-entry.webrtc {
-    color: #e5c07b;
 }
 
 .log-entry .timestamp {

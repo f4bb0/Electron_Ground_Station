@@ -1,5 +1,4 @@
 const { ipcRenderer } = require('electron')
-const Peer = require('simple-peer')
 const mqtt = require('mqtt')
 
 // 初始化终端
@@ -390,128 +389,44 @@ function updateAttitude(pitchDelta, rollDelta, yawDelta) {
     drawAttitudeIndicator(ctx, currentPitch, currentRoll, currentYaw);
 }
 
-// WebRTC相关变量
-let peer = null
-let videoStream = null
+// GStreamer 视频流处理
+document.getElementById('gstreamer-rtp-start').addEventListener('click', () => {
+    const port = document.getElementById('gstreamer-rtp-port').value || 5000;
+    const pipeline = `udpsrc port=${port} caps="application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96" ! rtph264depay ! decodebin ! videoconvert ! autovideosink`;
+    ipcRenderer.send('gstreamer-launch', pipeline);
+    document.getElementById('gstreamer-status').textContent = 'RTP Stream Starting...';
+});
 
-// 初始化视频容器
-const videoContainer = document.getElementById('video-stream')
-const videoElement = document.createElement('video')
-videoElement.autoplay = true
-videoElement.muted = true // 避免回声
-videoContainer.appendChild(videoElement)
-
-// WebRTC连接处理
-document.getElementById('webrtc-connect').addEventListener('click', () => {
-    const config = {
-        signalingUrl: document.getElementById('webrtc-signaling-url').value,
-        streamId: document.getElementById('webrtc-stream-id').value
+document.getElementById('gstreamer-rtsp-start').addEventListener('click', () => {
+    const url = document.getElementById('gstreamer-rtsp-url').value;
+    if (!url) {
+        alert('Please enter an RTSP URL');
+        return;
     }
-    
-    const statusEl = document.getElementById('webrtc-status')
-    statusEl.textContent = 'Connecting...'
-    statusEl.style.color = 'orange'
+    const pipeline = `rtspsrc location=${url} latency=0 ! rtph264depay ! decodebin ! videoconvert ! autovideosink`;
+    ipcRenderer.send('gstreamer-launch', pipeline);
+    document.getElementById('gstreamer-status').textContent = 'RTSP Stream Starting...';
+});
 
-    // 配置ICE服务器
-    const iceServers = [{
-        urls: document.getElementById('webrtc-stun').value
-    }]
+document.getElementById('gstreamer-stop').addEventListener('click', () => {
+    ipcRenderer.send('gstreamer-stop');
+    document.getElementById('gstreamer-status').textContent = 'Stream Stopped';
+});
 
-    const turnServer = document.getElementById('webrtc-turn').value
-    if (turnServer) {
-        iceServers.push({
-            urls: turnServer,
-            username: document.getElementById('webrtc-turn-username').value,
-            credential: document.getElementById('webrtc-turn-credential').value
-        })
-    }
+ipcRenderer.on('gstreamer-error', (event, error) => {
+    document.getElementById('gstreamer-status').textContent = `Error: ${error}`;
+    logManager.addLog('gstreamer', `[GStreamer] Error: ${error}`);
+});
 
-    // 创建新的Peer连接
-    if (peer) {
-        peer.destroy()
-    }
+ipcRenderer.on('gstreamer-closed', (event, code) => {
+    document.getElementById('gstreamer-status').textContent = `Stream Closed (code: ${code})`;
+    logManager.addLog('gstreamer', `[GStreamer] Closed with code: ${code}`);
+});
 
-    peer = new Peer({
-        initiator: false,
-        trickle: true,
-        config: {
-            iceServers: iceServers
-        }
-    })
-
-    // 处理连接事件
-    peer.on('signal', data => {
-        ipcRenderer.send('webrtc-signal', {
-            type: 'signal',
-            streamId: config.streamId,
-            data: data
-        })
-
-        logManager.addLog('webrtc', `[WebRTC] Signal: ${JSON.stringify(data)}`)
-    })
-
-    peer.on('stream', stream => {
-        videoStream = stream
-        videoElement.srcObject = stream
-
-        logManager.addLog('webrtc', '[WebRTC] Stream received')
-    })
-
-    peer.on('error', err => {
-        logManager.addLog('webrtc', `[WebRTC] Error: ${err.message}`)
-    })
-
-    peer.on('connect', () => {
-        statusEl.textContent = 'Connected'
-        statusEl.style.color = 'green'
-
-        logManager.addLog('webrtc', '[WebRTC] Connected')
-    })
-
-    peer.on('close', () => {
-        logManager.addLog('webrtc', '[WebRTC] Connection closed')
-
-        statusEl.textContent = 'Disconnected'
-        statusEl.style.color = 'gray'
-        if (videoStream) {
-            videoStream.getTracks().forEach(track => track.stop())
-            videoStream = null
-        }
-        videoElement.srcObject = null
-    })
-
-    // 连接到信令服务器
-    ipcRenderer.send('webrtc-connect', config)
-})
-
-// 处理信令服务器事件
-ipcRenderer.on('webrtc-signaling-connected', () => {
-    const statusEl = document.getElementById('webrtc-status')
-    statusEl.textContent = 'Signaling Connected'
-    statusEl.style.color = 'blue'
-})
-
-ipcRenderer.on('webrtc-signal', (event, message) => {
-    if (message.type === 'signal' && peer) {
-        peer.signal(message.data)
-    }
-})
-
-ipcRenderer.on('webrtc-error', (event, error) => {
-    const statusEl = document.getElementById('webrtc-status')
-    statusEl.textContent = 'Error: ' + error
-    statusEl.style.color = 'red'
-})
-
-ipcRenderer.on('webrtc-signaling-closed', () => {
-    const statusEl = document.getElementById('webrtc-status')
-    statusEl.textContent = 'Signaling Closed'
-    statusEl.style.color = 'gray'
-    if (peer) {
-        peer.destroy()
-        peer = null
-    }
-})
+ipcRenderer.on('gstreamer-stopped', () => {
+    document.getElementById('gstreamer-status').textContent = 'Stream Stopped by user';
+    logManager.addLog('gstreamer', '[GStreamer] Stopped by user');
+});
 
 // MQTT变量
 let mqttClient = null

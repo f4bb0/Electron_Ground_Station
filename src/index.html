@@ -98,19 +98,19 @@
                             <span id="mqtt-status"></span>
                         </div>
                     </div>
-                    <div class="webrtc-config">
-                        <h3>WebRTC Configuration</h3>
+                    <div class="gstreamer-config">
+                        <h3>GStreamer Configuration</h3>
                         <div class="input-group">
-                            <input type="text" id="webrtc-signaling-url" placeholder="Signaling Server URL" value="ws://localhost:8080">
-                            <input type="text" id="webrtc-stream-id" placeholder="Stream ID">
-                            <button id="webrtc-connect">Connect WebRTC</button>
-                            <span id="webrtc-status"></span>
+                            <input type="number" id="gstreamer-rtp-port" placeholder="RTP Port (e.g., 5000)" value="5000">
+                            <button id="gstreamer-rtp-start">Start RTP (H.264)</button>
                         </div>
                         <div class="input-group">
-                            <input type="text" id="webrtc-stun" placeholder="STUN Server" value="stun:stun.l.google.com:19302">
-                            <input type="text" id="webrtc-turn" placeholder="TURN Server (optional)">
-                            <input type="text" id="webrtc-turn-username" placeholder="TURN Username">
-                            <input type="password" id="webrtc-turn-credential" placeholder="TURN Credential">
+                            <input type="text" id="gstreamer-rtsp-url" placeholder="RTSP URL (e.g., rtsp://localhost:8554/mystream)">
+                            <button id="gstreamer-rtsp-start">Start RTSP</button>
+                        </div>
+                        <div class="input-group">
+                            <button id="gstreamer-stop">Stop Stream</button>
+                            <span id="gstreamer-status"></span>
                         </div>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                                     <label><input type="checkbox" data-type="ssh" checked> SSH</label>
                                     <label><input type="checkbox" data-type="udp" checked> UDP</label>
                                     <label><input type="checkbox" data-type="mqtt" checked> MQTT</label>
-                                    <label><input type="checkbox" data-type="webrtc" checked> WebRTC</label>
+                                    <label><input type="checkbox" data-type="gstreamer" checked> GStreamer</label>
                                 </div>
                                 <div class="log-actions">
                                     <button id="clear-logs">清除日志</button>
