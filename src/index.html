@@ -10,44 +10,65 @@
 <body>
     <div class="app-container">
         <nav class="navbar">
-            <div class="nav-item active" data-page="main">主要</div>
-            <div class="nav-item" data-page="map">地图</div>
-            <div class="nav-item" data-page="debug">调试</div>
+            <div class="nav-item active" data-page="main">🎛️</div>
+            <div class="nav-item" data-page="map">🗺️</div>
+            <div class="nav-item" data-page="debug">🐛</div>
         </nav>
         
         <div class="content">
             <div class="page" id="main-page">
-                <div class="video-container">
-                    <div class="hud-container">
-                        <div class="hud-heading">
-                            HDG <span class="hud-value" id="hud-heading">000</span>
+                <div class="instruments-page">
+                    <div class="instruments-grid">
+                        <div class="instrument-panel">
+                            <h3 class="instrument-title">航向指示器</h3>
+                            <div class="heading-indicator">
+                                <canvas id="heading-canvas"></canvas>
+                                <div class="instrument-value">航向: <span id="heading-value">0°</span></div>
+                            </div>
+                        </div>
+                        <div class="instrument-panel">
+                            <h3 class="instrument-title">姿态指示器</h3>
+                            <div class="attitude-indicator">
+                                <canvas id="attitude-canvas"></canvas>
+                                <div class="instrument-values">
+                                    <div>俯仰: <span id="pitch-value">0°</span></div>
+                                    <div>横滚: <span id="roll-value">0°</span></div>
+                                    <div>偏航: <span id="yaw-value">0°</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div id="video-stream"></div>
                     
-                    <!-- 可收放的仪表界面 -->
-                    <div class="dashboard-container">
-                        <div class="dashboard-toggle">
-                            <button id="toggle-dashboard">▼</button>
+                    <!-- 数据显示区域 -->
+                    <div class="flight-data">
+                        <div class="data-row">
+                            <span class="data-label">高度:</span>
+                            <span class="data-value" id="altitude-value">0 m</span>
                         </div>
-                        <div class="dashboard-content">
-                            <div id="dashboard-panels">
-                                <div class="instrument-container">
-                                    <div class="heading-indicator">
-                                        <div class="instrument-label">Heading Indicator</div>
-                                        <canvas id="heading-canvas"></canvas>
-                                        <div class="instrument-value">Heading: <span id="heading-value">0°</span></div>
-                                    </div>
-                                    <div class="attitude-indicator">
-                                        <div class="instrument-label">Attitude Indicator</div>
-                                        <canvas id="attitude-canvas"></canvas>
-                                        <div class="instrument-values">
-                                            <div>Pitch: <span id="pitch-value">0°</span></div>
-                                            <div>Roll: <span id="roll-value">0°</span></div>
-                                            <div>Yaw: <span id="yaw-value">0°</span></div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="data-row">
+                            <span class="data-label">速度:</span>
+                            <span class="data-value" id="airspeed-value">0 m/s</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">垂直速度:</span>
+                            <span class="data-value" id="vsi-value">0 m/s</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">转弯率:</span>
+                            <span class="data-value" id="turn-value">0°/s</span>
+                        </div>
+                    </div>
+                    
+                    <div class="instrument-controls">
+                        <div class="control-section">
+                            <h4>键盘控制（测试用）</h4>
+                            <div class="control-info">
+                                <span>方向键: 航向/俯仰</span>
+                                <span>Q/E: 横滚</span>
+                                <span>R/F: 高度</span>
+                                <span>T/G: 空速</span>
+                                <span>Y/H: 垂直速度</span>
+                                <span>U/J: 转弯率</span>
                             </div>
                         </div>
                     </div>

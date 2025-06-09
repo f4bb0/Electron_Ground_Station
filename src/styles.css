@@ -4,6 +4,19 @@
     --attitude-ground-color: #724818;
     --attitude-reticle-color: #f1ed00;
     --attitude-line-color: #fff;
+    
+    /* 暗色主题颜色变量 */
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #404040;
+    --text-primary: #e0e0e0;
+    --text-secondary: #bbb;
+    --text-accent: #00ff00;
+    --border-color: #555;
+    --hover-bg: #3a3a3a;
+    --input-bg: #333;
+    --button-bg: #0078d4;
+    --button-hover: #106ebe;
 }
 
 body {
@@ -11,10 +24,12 @@ body {
     padding: 0;
     height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 h1 {
-    color: #333;
+    color: var(--text-primary);
     text-align: center;
 }
 
@@ -29,22 +44,23 @@ h1 {
     max-height: 60vh;
     overflow-y: auto;
     padding: 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #e9ecef;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.ssh-config, .udp-config, .mqtt-config {
-    background: #ffffff;
+.ssh-config, .udp-config, .mqtt-config, .gstreamer-config {
+    background: var(--bg-tertiary);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    border: 1px solid var(--border-color);
 }
 
-.ssh-config h3, .udp-config h3, .mqtt-config h3 {
+.ssh-config h3, .udp-config h3, .mqtt-config h3, .gstreamer-config h3 {
     margin: 0 0 15px 0;
-    color: #2c3e50;
+    color: var(--text-primary);
     font-size: 16px;
     font-weight: 600;
 }
@@ -62,26 +78,10 @@ h1 {
     flex: 1;
     min-width: 200px;
     min-height: 100px;
-    background: #ffffff;
+    background: var(--bg-secondary);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-#terminal, #data-stream {
-    width: 100%;
-    height: 100%;
-    background: #000;
-    border-radius: 4px;
-}
-
-#data-stream {
-    background: #ffffff;
-    padding: 15px;
-    font-family: monospace;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #2c3e50;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
 .resize-handle {
@@ -91,11 +91,11 @@ h1 {
     width: 10px;
     height: 100%;
     cursor: ew-resize;
-    background: #f8f9fa;
+    background: var(--bg-tertiary);
 }
 
 .resize-handle:hover {
-    background: #e9ecef;
+    background: var(--hover-bg);
 }
 
 #terminal {
@@ -106,29 +106,38 @@ h1 {
 
 #data-stream {
     flex: 1;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     overflow-y: auto;
     padding: 10px;
+    color: var(--text-primary);
 }
 
-#ssh-status {
+#ssh-status, #mqtt-status, #gstreamer-status, #map-ssh-status {
     margin-left: 10px;
     padding: 4px 8px;
     border-radius: 4px;
-    background-color: rgba(0,0,0,0.1);
+    background-color: var(--bg-tertiary);
     font-weight: bold;
+    color: var(--text-primary);
 }
 
 input, button {
     padding: 5px 10px;
     border-radius: 4px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+input::placeholder {
+    color: var(--text-secondary);
 }
 
 button {
     padding: 8px 16px;
-    background: #3498db;
+    background: var(--button-bg);
     color: white;
     border: none;
     border-radius: 4px;
@@ -139,17 +148,18 @@ button {
 }
 
 button:hover {
-    background: #2980b9;
+    background: var(--button-hover);
 }
 
 button:active {
-    background: #2472a4;
+    background: #0969a6;
 }
 
 #map-container {
     position: relative;
     height: 100%;
     width: 100%;
+    background: var(--bg-primary);
 }
 
 #map {
@@ -161,16 +171,19 @@ button:active {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 5px 10px;
     border-radius: 4px;
     z-index: 1000;
+    border: 1px solid var(--border-color);
+    font-family: monospace;
 }
 
 #clear-markers {
     position: absolute;
-    bottom: 50px; /* 修改为距离底部50px */
-    left: 10px;   /* 修改为左对齐 */
+    bottom: 50px;
+    left: 10px;
     z-index: 1000;
     background: #dc3545;
 }
@@ -185,24 +198,33 @@ button:active {
 }
 
 .navbar {
-    width: 200px;
-    background: #2c3e50;
-    padding: 20px 0;
+    width: 60px;
+    background: var(--bg-secondary);
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid var(--border-color);
 }
 
 .nav-item {
-    color: white;
-    padding: 15px 20px;
+    color: var(--text-primary);
+    padding: 15px 0;
     cursor: pointer;
     transition: background-color 0.3s;
+    width: 100%;
+    text-align: center;
+    font-size: 20px;
+    border: none;
+    background: none;
 }
 
 .nav-item:hover {
-    background: #34495e;
+    background: var(--hover-bg);
 }
 
 .nav-item.active {
-    background: #3498db;
+    background: var(--button-bg);
 }
 
 .content {
@@ -231,33 +253,31 @@ button:active {
 }
 
 .connection-panel > div:not(:last-child) {
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color);
     margin-bottom: 20px;
     padding-bottom: 20px;
 }
 
-/* 确保最后一个配置面板底部有足够的空间 */
 .connection-panel > div:last-child {
     margin-bottom: 10px;
 }
 
-/* 添加滚动条样式 */
 .connection-panel::-webkit-scrollbar {
     width: 8px;
 }
 
 .connection-panel::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--bg-tertiary);
     border-radius: 4px;
 }
 
 .connection-panel::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--border-color);
     border-radius: 4px;
 }
 
 .connection-panel::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--text-secondary);
 }
 
 .debug-content {
@@ -265,7 +285,7 @@ button:active {
     display: flex;
     gap: 20px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--bg-primary);
     min-height: 200px;
     overflow: hidden;
 }
@@ -274,256 +294,159 @@ button:active {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 10px;
     border-radius: 4px;
-    z-index: 1001; /* 确保在清除标记按钮之上 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1001;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     display: flex;
     gap: 10px;
     align-items: center;
-}
-
-#map-ssh-status {
-    padding: 4px 8px;
-    border-radius: 4px;
-    background-color: rgba(0,0,0,0.1);
-    font-weight: bold;
+    border: 1px solid var(--border-color);
 }
 
 #quick-host {
     width: 200px;
 }
 
-/* 主页面样式 */
-.video-container {
-    position: relative;
-    width: 100%;
+/* 主页面仪表样式 */
+.instruments-page {
+    display: flex;
+    flex-direction: column;
     height: 100%;
-    background: #000;
-    overflow: hidden;
+    background: var(--bg-primary);
+    padding: 20px;
+    overflow-y: auto;
 }
 
-#video-stream {
-    width: 100%;
-    height: 100%;
-    background-color: black;
-}
-
-#video-stream video {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-/* 仪表盘样式 */
-.dashboard-container {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    max-width: 1200px;
-}
-
-.dashboard-toggle {
-    text-align: center;
-    padding: 5px;
-}
-
-#toggle-dashboard {
-    background: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 5px 20px;
-    font-size: 16px;
-}
-
-#toggle-dashboard:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-#toggle-dashboard.collapsed {
-    transform: rotate(180deg);
-}
-
-.dashboard-content {
-    padding: 0;
-    color: white;
-    height: 170px;
-}
-
-.dashboard-content.collapsed {
-    display: none;
-}
-
-#dashboard-panels {
+.instruments-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
-    padding: 10px;
+    flex: 1;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.instrument-container {
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    padding: 0;
+.instrument-panel {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
 }
 
-/* 姿态指示器样式 */
-.heading-indicator, .attitude-indicator {
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
+.instrument-panel:hover {
+    border-color: var(--text-secondary);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.instrument-title {
+    color: var(--text-primary);
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.instrument-panel .heading-indicator,
+.instrument-panel .attitude-indicator,
+.instrument-panel .altitude-indicator,
+.instrument-panel .airspeed-indicator,
+.instrument-panel .vsi-indicator,
+.instrument-panel .turn-coordinator {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    position: relative;
+    gap: 15px;
 }
 
-.instrument-label {
-    display: none;
-}
-
-#heading-canvas, #attitude-canvas {
-    width: 150px;
-    height: 150px;
+.instrument-panel canvas {
     border-radius: 50%;
     background: #111;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    border: 3px solid var(--border-color);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
 }
 
-/* HUD样式 */
-.hud-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-family: monospace;
-    z-index: 100;
-}
-
-.hud-heading {
-    font-size: 24px;
-    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.hud-value {
-    min-width: 60px;
-    text-align: center;
-}
-
-.mqtt-config {
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-.mqtt-config h3 {
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.input-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-.input-group input {
-    flex: 1;
-    min-width: 200px;
-}
-
-#webrtc-status, #mqtt-status {
-    padding: 4px 8px;
-    border-radius: 4px;
-    background-color: rgba(0,0,0,0.1);
+.instrument-value,
+.instrument-values {
+    color: var(--text-accent);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
     font-weight: bold;
-    min-width: 100px;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.instrument-values {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.data-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-height: 120px;
+    justify-content: center;
+}
+
+.data-value {
+    color: var(--text-accent);
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    background: rgba(0, 255, 0, 0.1);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 255, 0, 0.3);
+    min-width: 120px;
     text-align: center;
 }
 
-/* 分隔线样式 */
-.connection-panel > div:not(:last-child) {
-    border-bottom: 1px solid #e9ecef;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
+.data-label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* 确保最后一个配置面板底部有足够的空间 */
-.connection-panel > div:last-child {
-    margin-bottom: 10px;
+.instrument-controls {
+    margin-top: 20px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* 添加滚动条样式 */
-.connection-panel::-webkit-scrollbar {
-    width: 8px;
+.control-section h4 {
+    color: var(--text-primary);
+    margin: 0 0 10px 0;
+    font-size: 14px;
 }
 
-.connection-panel::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.connection-panel::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.connection-panel::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.debug-content {
-    flex: 1;
+.control-info {
     display: flex;
     gap: 20px;
-    padding: 20px;
-    background: #f8f9fa;
-    min-height: 200px;
-    overflow: hidden;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+    font-size: 12px;
 }
 
-.quick-actions {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
-    border-radius: 4px;
-    z-index: 1001; /* 确保在清除标记按钮之上 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-#map-ssh-status {
+.control-info span {
+    background: var(--bg-tertiary);
     padding: 4px 8px;
     border-radius: 4px;
-    background-color: rgba(0,0,0,0.1);
-    font-weight: bold;
-}
-
-#quick-host {
-    width: 200px;
+    border: 1px solid var(--border-color);
 }
 
 /* 日志区域样式 */
@@ -531,8 +454,8 @@ button:active {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #1e1e1e;
-    color: #ffffff;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     font-family: monospace;
     font-size: 12px;
 }
@@ -542,8 +465,8 @@ button:active {
     justify-content: space-between;
     align-items: center;
     padding: 8px;
-    background: #2d2d2d;
-    border-bottom: 1px solid #3d3d3d;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .log-filters {
@@ -556,6 +479,7 @@ button:active {
     align-items: center;
     gap: 4px;
     cursor: pointer;
+    color: var(--text-primary);
 }
 
 .log-filters input[type="checkbox"] {
@@ -570,14 +494,14 @@ button:active {
 .log-actions button {
     padding: 4px 8px;
     font-size: 12px;
-    background: #3d3d3d;
-    border: 1px solid #4d4d4d;
-    color: #ffffff;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     cursor: pointer;
 }
 
 .log-actions button:hover {
-    background: #4d4d4d;
+    background: var(--hover-bg);
 }
 
 #log-stream {
@@ -607,11 +531,84 @@ button:active {
     color: #c678dd;
 }
 
+.log-entry.gstreamer {
+    color: #e06c75;
+}
+
 .log-entry .timestamp {
-    color: #777;
+    color: var(--text-secondary);
     margin-right: 8px;
 }
 
 .log-entry.hidden {
+    display: none;
+}
+
+/* 飞行数据显示区域 */
+.flight-data {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.data-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-secondary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    min-width: 180px;
+}
+
+.data-row .data-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.data-row .data-value {
+    color: var(--text-accent);
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    min-width: auto;
+    text-align: left;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.input-group input {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* 移除原有的视频和HUD相关样式 */
+.video-container,
+.hud-container,
+.hud-heading,
+.hud-value,
+#video-stream,
+.dashboard-container,
+.dashboard-toggle,
+.dashboard-content,
+#dashboard-panels {
     display: none;
 }

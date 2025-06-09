@@ -119,16 +119,7 @@ function initResize(e) {
 
 // 导航仪表初始化
 document.addEventListener('DOMContentLoaded', () => {
-    const dashboardToggle = document.getElementById('toggle-dashboard');
-    const dashboardContent = document.querySelector('.dashboard-content');
-
-    if (dashboardToggle && dashboardContent) {
-        dashboardToggle.addEventListener('click', () => {
-            dashboardToggle.classList.toggle('collapsed');
-            dashboardContent.classList.toggle('collapsed');
-        });
-    }
-    
+    // 移除原有的收放功能
     // 初始化导航仪表
     initInstruments();
 });
@@ -138,17 +129,48 @@ function initInstruments() {
     const attitudeCanvas = document.getElementById('attitude-canvas');
     
     if (headingCanvas && attitudeCanvas) {
+        // 设置canvas尺寸
+        headingCanvas.width = 200;
+        headingCanvas.height = 200;
+        attitudeCanvas.width = 200;
+        attitudeCanvas.height = 200;
+        
+        // 获取绘图上下文
         const headingCtx = headingCanvas.getContext('2d');
         const attitudeCtx = attitudeCanvas.getContext('2d');
         
-        // 设置画布尺寸
-        headingCanvas.width = headingCanvas.height = 150;
-        attitudeCanvas.width = attitudeCanvas.height = 150;
+        // 初始绘制
+        drawHeadingIndicator(headingCtx, currentHeading);
+        drawAttitudeIndicator(attitudeCtx, currentPitch, currentRoll, currentYaw);
         
-        // 初始化绘制
-        drawHeadingIndicator(headingCtx, 0);
-        drawAttitudeIndicator(attitudeCtx, 0, 0, 0);
+        // 存储canvas上下文供后续使用
+        window.headingCtx = headingCtx;
+        window.attitudeCtx = attitudeCtx;
     }
+    
+    // 初始化数据显示
+    initDataDisplays();
+}
+
+function initDataDisplays() {
+    // 初始化所有数据显示元素
+    const headingElement = document.getElementById('heading-value');
+    const pitchElement = document.getElementById('pitch-value');
+    const rollElement = document.getElementById('roll-value');
+    const yawElement = document.getElementById('yaw-value');
+    const altitudeElement = document.getElementById('altitude-value');
+    const airspeedElement = document.getElementById('airspeed-value');
+    const vsiElement = document.getElementById('vsi-value');
+    const turnElement = document.getElementById('turn-value');
+    
+    if (headingElement) headingElement.textContent = `${currentHeading.toFixed(0)}°`;
+    if (pitchElement) pitchElement.textContent = `${currentPitch.toFixed(1)}°`;
+    if (rollElement) rollElement.textContent = `${currentRoll.toFixed(1)}°`;
+    if (yawElement) yawElement.textContent = `${currentYaw.toFixed(1)}°`;
+    if (altitudeElement) altitudeElement.textContent = `${currentAltitude.toFixed(0)} m`;
+    if (airspeedElement) airspeedElement.textContent = `${currentAirspeed.toFixed(1)} m/s`;
+    if (vsiElement) vsiElement.textContent = `${currentVSI.toFixed(1)} m/s`;
+    if (turnElement) turnElement.textContent = `${currentTurnRate.toFixed(1)}°/s`;
 }
 
 function drawHeadingIndicator(ctx, heading) {
@@ -338,6 +360,12 @@ function drawAttitudeIndicator(ctx, pitch, roll, yaw) {
     document.getElementById('yaw-value').textContent = `${Math.round(yaw)}°`;
 }
 
+// 更新仪表数值显示
+
+
+
+
+
 // 临时测试用：添加键盘控制
 document.addEventListener('keydown', (e) => {
     // 这里后续可以替换为真实的数据输入逻辑
@@ -362,6 +390,30 @@ document.addEventListener('keydown', (e) => {
         case 'e':
             updateAttitude(0, testStep, 0);
             break;
+        case 'r':
+            updateAltitude(testStep * 10);
+            break;
+        case 'f':
+            updateAltitude(-testStep * 10);
+            break;
+        case 't':
+            updateAirspeed(testStep);
+            break;
+        case 'g':
+            updateAirspeed(-testStep);
+            break;
+        case 'y':
+            updateVSI(testStep);
+            break;
+        case 'h':
+            updateVSI(-testStep);
+            break;
+        case 'u':
+            updateTurnRate(testStep);
+            break;
+        case 'j':
+            updateTurnRate(-testStep);
+            break;
     }
 });
 
@@ -369,15 +421,21 @@ let currentHeading = 0;
 let currentPitch = 0;
 let currentRoll = 0;
 let currentYaw = 0;
+let currentAltitude = 0;
+let currentAirspeed = 0;
+let currentVSI = 0;
+let currentTurnRate = 0;
 
 function updateHeading(delta) {
     currentHeading = (currentHeading + delta + 360) % 360;
     const ctx = document.getElementById('heading-canvas').getContext('2d');
     drawHeadingIndicator(ctx, currentHeading);
     
-    // Update HUD heading
-    const hudHeading = document.getElementById('hud-heading');
-    hudHeading.textContent = currentHeading.toString().padStart(3, '0');
+    // 更新数据显示
+    const headingElement = document.getElementById('heading-value');
+    if (headingElement) {
+        headingElement.textContent = `${currentHeading.toFixed(0)}°`;
+    }
 }
 
 function updateAttitude(pitchDelta, rollDelta, yawDelta) {
@@ -387,6 +445,74 @@ function updateAttitude(pitchDelta, rollDelta, yawDelta) {
     
     const ctx = document.getElementById('attitude-canvas').getContext('2d');
     drawAttitudeIndicator(ctx, currentPitch, currentRoll, currentYaw);
+    
+    // 更新数据显示
+    const pitchElement = document.getElementById('pitch-value');
+    const rollElement = document.getElementById('roll-value');
+    const yawElement = document.getElementById('yaw-value');
+    
+    if (pitchElement) {
+        const pitchSign = currentPitch >= 0 ? '+' : '';
+        pitchElement.textContent = `${pitchSign}${currentPitch.toFixed(1)}°`;
+    }
+    
+    if (rollElement) {
+        rollElement.textContent = `${currentRoll.toFixed(1)}°`;
+    }
+    
+    if (yawElement) {
+        yawElement.textContent = `${currentYaw.toFixed(1)}°`;
+    }
+}
+
+function updateAltitude(delta) {
+    currentAltitude = Math.max(currentAltitude + delta, 0);
+    currentVSI = delta / 5; // 简单的垂直速度计算
+    
+    // 更新数据显示
+    const altitudeElement = document.getElementById('altitude-value');
+    const vsiElement = document.getElementById('vsi-value');
+    
+    if (altitudeElement) {
+        altitudeElement.textContent = `${currentAltitude.toFixed(0)} m`;
+    }
+    
+    if (vsiElement) {
+        const vsiSign = currentVSI >= 0 ? '+' : '';
+        vsiElement.textContent = `${vsiSign}${currentVSI.toFixed(1)} m/s`;
+    }
+}
+
+function updateAirspeed(delta) {
+    currentAirspeed = Math.max(currentAirspeed + delta, 0);
+    
+    // 更新数据显示
+    const airspeedElement = document.getElementById('airspeed-value');
+    if (airspeedElement) {
+        airspeedElement.textContent = `${currentAirspeed.toFixed(1)} m/s`;
+    }
+}
+
+function updateTurnRate(delta) {
+    currentTurnRate = Math.max(Math.min(currentTurnRate + delta, 180), -180);
+    
+    // 更新数据显示
+    const turnElement = document.getElementById('turn-value');
+    if (turnElement) {
+        const turnSign = currentTurnRate >= 0 ? '+' : '';
+        turnElement.textContent = `${turnSign}${currentTurnRate.toFixed(1)}°/s`;
+    }
+}
+
+function updateVSI(delta) {
+    currentVSI = Math.max(Math.min(currentVSI + delta, 50), -50); // 限制在±50m/s
+    
+    // 更新数据显示
+    const vsiElement = document.getElementById('vsi-value');
+    if (vsiElement) {
+        const vsiSign = currentVSI >= 0 ? '+' : '';
+        vsiElement.textContent = `${vsiSign}${currentVSI.toFixed(1)} m/s`;
+    }
 }
 
 // GStreamer 视频流处理
